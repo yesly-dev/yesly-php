@@ -20,7 +20,7 @@ final class Webhook
      *
      * @throws SignatureVerificationException
      */
-    public static function constructEvent(string $payload, ?string $header, string $secret, int $tolerance = self::DEFAULT_TOLERANCE, ?int $now = null): array
+    public static function constructEvent(string $payload, ?string $header, #[\SensitiveParameter] string $secret, int $tolerance = self::DEFAULT_TOLERANCE, ?int $now = null): array
     {
         self::verifySignature($payload, $header, $secret, $tolerance, $now);
         $event = json_decode($payload, true);
@@ -38,7 +38,7 @@ final class Webhook
      *
      * @throws SignatureVerificationException
      */
-    public static function verifySignature(string $payload, ?string $header, string $secret, int $tolerance = self::DEFAULT_TOLERANCE, ?int $now = null): void
+    public static function verifySignature(string $payload, ?string $header, #[\SensitiveParameter] string $secret, int $tolerance = self::DEFAULT_TOLERANCE, ?int $now = null): void
     {
         if ($header === null || $header === '') {
             throw new SignatureVerificationException('The Yesly-Signature header is missing.');

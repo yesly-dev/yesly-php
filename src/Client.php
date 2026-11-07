@@ -30,7 +30,7 @@ class Client
      * @param string|null $apiKey defaults to the `YESLY_API_KEY` environment variable
      * @param array{base_url?: string, api_version?: string, timeout?: float, max_retries?: int, http_client?: HttpClientInterface} $options
      */
-    public function __construct(?string $apiKey = null, array $options = [])
+    public function __construct(#[\SensitiveParameter] ?string $apiKey = null, array $options = [])
     {
         $env = static function (string $name): ?string {
             $v = getenv($name);
@@ -38,12 +38,22 @@ class Client
             return \is_string($v) && $v !== '' ? $v : null;
         };
         $this->apiKey = $apiKey ?? $env('YESLY_API_KEY');
-        $this->baseUrl = rtrim($options['base_url'] ?? $env('YESLY_BASE_URL') ?? Meta::BASE_URL, '/');
+        $this->baseUrl = self::checkBaseUrl(rtrim($options['base_url'] ?? $env('YESLY_BASE_URL') ?? Meta::BASE_URL, '/'));
         $this->apiVersion = $options['api_version'] ?? Meta::API_VERSION;
         $this->timeout = $options['timeout'] ?? 30.0;
         $this->maxRetries = $options['max_retries'] ?? 2;
         $this->http = $options['http_client'] ?? new CurlClient();
         $this->initResources();
+    }
+
+    /**
+     * Keeps the API key out of `var_dump()` and `print_r()`.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        return ['baseUrl' => $this->baseUrl, 'apiVersion' => $this->apiVersion, 'mode' => $this->mode()];
     }
 
     /** `live` or `test`, from the key's prefix. */
@@ -169,6 +179,20 @@ class Client
         }
 
         return $pairs === [] ? '' : '?' . implode('&', $pairs);
+    }
+
+    /** The API key goes in every request, so the base URL must be HTTPS; plain HTTP only to this machine. */
+    private static function checkBaseUrl(string $baseUrl): string
+    {
+        $scheme = parse_url($baseUrl, \PHP_URL_SCHEME);
+        $host = parse_url($baseUrl, \PHP_URL_HOST);
+        if ($scheme === 'https' && \is_string($host) && $host !== '') {
+            return $baseUrl;
+        }
+        if ($scheme === 'http' && \in_array($host, ['localhost', '127.0.0.1', '[::1]'], true)) {
+            return $baseUrl;
+        }
+        throw new YeslyException('The base URL must use https:// (http:// is only allowed for localhost).');
     }
 
     /** @param array<string, string> $headers */

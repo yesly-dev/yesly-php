@@ -155,4 +155,23 @@ final class ClientTest extends TestCase
             self::assertIsObject($y->{$name});
         }
     }
+
+    public function testBaseUrlMustBeHttpsExceptForLocalhost(): void
+    {
+        foreach (['http://localhost:4010', 'http://127.0.0.1:4010/v1', 'http://[::1]:4010'] as $baseUrl) {
+            self::assertSame($baseUrl, (new Client('ysk_test_1', ['base_url' => $baseUrl]))->baseUrl);
+        }
+        $this->expectException(YeslyException::class);
+        $this->expectExceptionMessage('must use https');
+        new Client('ysk_test_1', ['base_url' => 'http://api.yesly.dev/v1']);
+    }
+
+    public function testDumpsDoNotShowTheApiKey(): void
+    {
+        $y = new Client('ysk_test_secretvalue');
+        self::assertStringNotContainsString('secretvalue', print_r($y, true));
+        ob_start();
+        var_dump($y);
+        self::assertStringNotContainsString('secretvalue', (string) ob_get_clean());
+    }
 }

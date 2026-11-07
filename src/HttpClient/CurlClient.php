@@ -8,7 +8,7 @@ use Yesly\Exception\ApiConnectionException;
 
 final class CurlClient implements HttpClientInterface
 {
-    public function send(string $method, string $url, array $headers, ?string $body, float $timeout): array
+    public function send(string $method, string $url, #[\SensitiveParameter] array $headers, ?string $body, float $timeout): array
     {
         $ch = curl_init($url);
         if ($ch === false) {
