@@ -1,5 +1,4 @@
-# Packagist picks up new tags by itself (see docs/publishing.md), so there is
-# no release workflow.
+# Packagist picks up new tags by itself, so there is no release workflow.
 name: CI
 
 on:

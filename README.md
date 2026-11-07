@@ -2,8 +2,7 @@
 
 The official PHP library for the Yesly API.
 
-> Status: 0.1.0, not published yet. Covers API version `2026-10-01`. How to
-> publish it: [docs/publishing.md](docs/publishing.md).
+> Status: 0.1.0, not published yet. Covers API version `2026-10-01`.
 
 ## Install
 
@@ -85,7 +84,7 @@ reused on every retry; pass your own in the last argument. Creating an
 appointment is idempotent by `external_id` instead.
 
 ```php
-new \Yesly\Client($key, ['timeout' => 10.0, 'max_retries' => 4, 'base_url' => 'https://api.dev.yesly.dev/v1']);
+new \Yesly\Client($key, ['timeout' => 10.0, 'max_retries' => 4]);
 $yesly->appointments->cancel('apt_…', ['reason' => 'Shop closed'], ['idempotency_key' => 'cancel-ORD-48213']);
 ```
 
@@ -114,11 +113,10 @@ composer generate
 Smoke test against the real API with a test key:
 
 ```bash
-YESLY_API_KEY=ysk_test_… YESLY_BASE_URL=https://api.dev.yesly.dev/v1 php scripts/smoke.php
+YESLY_API_KEY=ysk_test_… php scripts/smoke.php
 ```
 
 ## Releasing
 
 Bump `Version::VERSION` in `src/Version.php`, then push a tag `v<version>`;
-Packagist reads the tag. First-time registration on Packagist:
-[docs/publishing.md](docs/publishing.md).
+Packagist reads the tag.
