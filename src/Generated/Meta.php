@@ -18,6 +18,7 @@ final class Meta
         'appointment.created',
         'appointment.confirmed',
         'appointment.rescheduled',
+        'appointment.reschedule_requested',
         'appointment.cancelled',
         'appointment.no_reply',
         'message.sent',
