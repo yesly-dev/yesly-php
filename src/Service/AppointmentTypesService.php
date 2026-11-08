@@ -32,7 +32,7 @@ final class AppointmentTypesService extends AbstractService
      *
      * `POST /appointment_types`
      *
-     * @param array{id: string, name: string, time_format: string, minutes: int, place: string, instructions?: string, reschedulable?: bool} $params
+     * @param array{id: string, name: string, time_format: string, minutes: int, place: string, instructions?: string, reschedulable?: bool, first_contact?: array<string, mixed>|null} $params
      * @param array{idempotency_key?: string, timeout?: float, max_retries?: int} $opts
      * @return array<string, mixed> AppointmentType
      */
@@ -49,7 +49,7 @@ final class AppointmentTypesService extends AbstractService
      * `PATCH /appointment_types/{id}`
      *
      * @param string $id Id of the appointment type, such as `delivery`.
-     * @param array{name?: string, minutes?: int, instructions?: string, reschedulable?: bool} $params
+     * @param array{name?: string, minutes?: int, instructions?: string, reschedulable?: bool, first_contact?: array<string, mixed>|null} $params
      * @param array{timeout?: float, max_retries?: int} $opts
      * @return array<string, mixed> AppointmentType
      */
