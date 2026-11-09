@@ -13,7 +13,7 @@ final class AppointmentsService extends AbstractService
     /**
      * List appointments.
      *
-     * Lists appointments, newest first. A common use is to ask, each afternoon, which of tomorrow's appointments ended with `no_reply` so your team can call them.
+     * Lists appointments. With `status`, `date`, `from`, `to` or `metadata` the list is in slot order, soonest first; otherwise it is newest first, by creation. A `date`, `from` or `to` filter without `status` or `metadata` covers at most 62 days. A common use is to ask, each afternoon, which of tomorrow's appointments ended with `no_reply` so your team can call them.
      *
      * `GET /appointments`
      *
@@ -29,11 +29,11 @@ final class AppointmentsService extends AbstractService
     /**
      * Create an appointment.
      *
-     * Creates an appointment and schedules the first contact. By default Yesly writes the day before at 10:00 and moves through your channels if there is no answer; if the appointment is booked after that moment, contact starts at the next allowed time within your contact hours.
+     * Creates an appointment and schedules the first contact. By default Yesly writes the day before at 10:00 and moves through your channels if there is no answer; if the appointment is booked after that moment, contact starts at the next allowed time within your contact hours. If no contact time is left before the slot starts, `first_contact_at` is `null` and the customer is not contacted.
      *
      * `POST /appointments`
      *
-     * @param array{external_id: string, type?: string, location?: string, slot: array<string, mixed>, customer: array<string, mixed>, channels?: list<string>, metadata?: array<string, mixed>} $params
+     * @param array{external_id: string, type?: string, location?: string|null, slot: array<string, mixed>, customer: array<string, mixed>, channels?: list<string>, metadata?: array<string, mixed>} $params
      * @param array{timeout?: float, max_retries?: int} $opts
      * @return array<string, mixed> Appointment
      */
@@ -61,12 +61,12 @@ final class AppointmentsService extends AbstractService
     /**
      * Update an appointment.
      *
-     * Changes an appointment. Send only what changes. `metadata` is merged: keys you send are set, a key sent as an empty string is removed.
+     * Changes an appointment. Send only what changes. `metadata` is merged: keys you send are set, a key sent as `null` or an empty string is removed.
      *
      * `PATCH /appointments/{id}`
      *
      * @param string $id Id of the appointment, prefixed `apt_`.
-     * @param array{type?: string, location?: string, slot?: array<string, mixed>, customer?: array<string, mixed>, channels?: list<string>, metadata?: array<string, mixed>} $params
+     * @param array{type?: string, location?: string|null, slot?: array<string, mixed>, customer?: array<string, mixed>, channels?: list<string>, metadata?: array<string, mixed>} $params
      * @param array{timeout?: float, max_retries?: int} $opts
      * @return array<string, mixed> Appointment
      */

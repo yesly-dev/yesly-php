@@ -29,7 +29,7 @@ final class SlotsService extends AbstractService
     /**
      * Publish slots.
      *
-     * Publishes free slots in bulk, up to 500 per request. A slot with the same type, location and start as an existing one replaces it, so you can send your full availability every few hours. Lowering `capacity` below `booked` is refused.
+     * Publishes free slots in bulk, up to 500 per request. A slot with the same type, location and start as an existing one replaces it, so you can send your full availability every few hours; a replaced slot keeps its `booked` count.
      *
      * `POST /slots`
      *

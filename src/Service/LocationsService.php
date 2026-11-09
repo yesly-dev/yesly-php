@@ -49,7 +49,7 @@ final class LocationsService extends AbstractService
      * `PATCH /locations/{id}`
      *
      * @param string $id Id of the location, such as `bilbao`.
-     * @param array{name?: string, address?: string, transfer_phone?: string} $params
+     * @param array{name?: string, address?: string, transfer_phone?: string|null} $params
      * @param array{timeout?: float, max_retries?: int} $opts
      * @return array<string, mixed> Location
      */

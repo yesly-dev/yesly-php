@@ -13,17 +13,16 @@ final class WebhookEndpointsService extends AbstractService
     /**
      * List endpoints.
      *
-     * Lists the webhook endpoints in the key's mode.
+     * Lists all the webhook endpoints in the key's mode, in one page.
      *
      * `GET /webhook_endpoints`
      *
-     * @param array{limit?: int, starting_after?: string} $params
      * @param array{timeout?: float, max_retries?: int} $opts
      * @return Page pages of WebhookEndpoint
      */
-    public function list(array $params = [], array $opts = []): Page
+    public function list(array $opts = []): Page
     {
-        return $this->client->list('GET', '/webhook_endpoints', query: $params, opts: $opts);
+        return $this->client->list('GET', '/webhook_endpoints', opts: $opts);
     }
 
     /**
@@ -78,7 +77,7 @@ final class WebhookEndpointsService extends AbstractService
     /**
      * Send a test event.
      *
-     * Sends a sample event, marked `"mode": "test"`, to the endpoint and returns what it answered. Useful to check the URL and your signature check before going live.
+     * Sends a sample event to the endpoint, signed like a real one, and returns what it answered. Useful to check the URL and your signature check before going live. The event has the `mode` of the key that calls this, and `data` is always a sample `appointment` (with only some fields), whatever the `type`. It is not stored, so it does not appear in List events.
      *
      * `POST /webhook_endpoints/{id}/test`
      *

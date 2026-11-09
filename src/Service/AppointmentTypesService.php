@@ -28,11 +28,11 @@ final class AppointmentTypesService extends AbstractService
     /**
      * Create an appointment type.
      *
-     * Adds an appointment type. Message templates pick it up at once through `{type}`, `{time}` and `{instructions}`.
+     * Adds an appointment type. Its name and time format are used in the messages sent from then on.
      *
      * `POST /appointment_types`
      *
-     * @param array{id: string, name: string, time_format: string, minutes: int, place: string, instructions?: string, reschedulable?: bool, cancellable?: bool, first_contact?: array<string, mixed>|null} $params
+     * @param array{id: string, name: string, time_format: string, minutes: int, place: string, instructions?: string|null, reschedulable?: bool, cancellable?: bool, first_contact?: array<string, mixed>|null} $params
      * @param array{idempotency_key?: string, timeout?: float, max_retries?: int} $opts
      * @return array<string, mixed> AppointmentType
      */
