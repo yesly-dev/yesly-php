@@ -43,6 +43,22 @@ final class AppointmentsService extends AbstractService
     }
 
     /**
+     * Count appointments by status.
+     *
+     * How many appointments List appointments would return for each status, with the same filters (all of them but `status`, `limit` and `starting_after`). Without `date`, `from` or `to` it counts every appointment the account still keeps. Counts with whole days (`date`, or `from` and `to` as dates) or no dates, by type and location, come from counters kept as appointments change, a few seconds behind.
+     *
+     * `GET /appointments/counts`
+     *
+     * @param array{date?: string, from?: string, to?: string, type?: string, location?: string, external_id?: string, metadata?: array<string, mixed>} $params
+     * @param array{timeout?: float, max_retries?: int} $opts
+     * @return array<string, mixed> AppointmentCounts
+     */
+    public function count(array $params = [], array $opts = []): array
+    {
+        return $this->client->request('GET', '/appointments/counts', query: $params, opts: $opts);
+    }
+
+    /**
      * Retrieve an appointment.
      *
      * Fetches an appointment with its attempts and answer. To find one by your own id, list with `external_id`.
@@ -90,6 +106,23 @@ final class AppointmentsService extends AbstractService
     public function cancel(string $id, array $params = [], array $opts = []): array
     {
         return $this->client->request('POST', \sprintf('/appointments/%s/cancel', \rawurlencode($id)), body: $params, idempotent: true, opts: $opts);
+    }
+
+    /**
+     * Get a call recording.
+     *
+     * A link to the audio of a conversational call (attempts with `has_recording` `true`): a WAV file, customer on the left channel and Yesly's agent on the right. The link works for 15 minutes; ask again for a new one. Recordings are kept as long as the account's retention allows and stored in the EU. Every link is logged (who and when, a member or an API key by name); owners and admins see the log in the dashboard. Needs a key with full access: a read-only key gets `403` `api_key_scope`.
+     *
+     * `GET /appointments/{id}/attempts/{attempt}/recording`
+     *
+     * @param string $id Id of the appointment, prefixed `apt_`.
+     * @param string $attempt Id of the call attempt, prefixed `att_`.
+     * @param array{timeout?: float, max_retries?: int} $opts
+     * @return array<string, mixed> Recording
+     */
+    public function recording(string $id, string $attempt, array $opts = []): array
+    {
+        return $this->client->request('GET', \sprintf('/appointments/%s/attempts/%s/recording', \rawurlencode($id), \rawurlencode($attempt)), opts: $opts);
     }
 
     /**
