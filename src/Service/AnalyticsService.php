@@ -17,7 +17,7 @@ final class AnalyticsService extends AbstractService
      *
      * `GET /analytics/summary`
      *
-     * @param array{use_case?: string, range?: string, type?: string, location?: string} $params
+     * @param array{range?: string, type?: string, location?: string} $params
      * @param array{timeout?: float, max_retries?: int} $opts
      * @return array<string, mixed> AnalyticsSummary
      */

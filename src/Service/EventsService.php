@@ -17,7 +17,7 @@ final class EventsService extends AbstractService
      *
      * `GET /events`
      *
-     * @param array{type?: string, use_case?: string, subject?: string, appointment?: string, from?: string, limit?: int, starting_after?: string} $params
+     * @param array{type?: string, appointment?: string, from?: string, limit?: int, starting_after?: string} $params
      * @param array{timeout?: float, max_retries?: int} $opts
      * @return Page pages of Event
      */
