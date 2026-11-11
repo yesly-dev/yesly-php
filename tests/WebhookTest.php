@@ -12,7 +12,7 @@ final class WebhookTest extends TestCase
 {
     private const SECRET = 'whsec_test';
     private const NOW = 1794474252;
-    private const BODY = '{"id":"evt_1","object":"event","type":"appointment.confirmed","data":{"appointment":{"id":"apt_1"}}}';
+    private const BODY = '{"id":"evt_1","object":"event","type":"conversation.ended","data":{"conversation":{"id":"cnv_7Qp4Ns2Xk9Lm3D","outcome":{"code":"confirmed","data":{}}}}}';
 
     private static function sign(string $secret, int $t = self::NOW, string $payload = self::BODY): string
     {
@@ -22,7 +22,8 @@ final class WebhookTest extends TestCase
     public function testValidSignature(): void
     {
         $event = Webhook::constructEvent(self::BODY, 't=' . self::NOW . ',v1=' . self::sign(self::SECRET), self::SECRET, now: self::NOW);
-        self::assertSame('appointment.confirmed', $event['type']);
+        self::assertSame('conversation.ended', $event['type']);
+        self::assertSame('confirmed', $event['data']['conversation']['outcome']['code']);
     }
 
     public function testEitherSignatureDuringARoll(): void

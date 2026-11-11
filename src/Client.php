@@ -12,7 +12,7 @@ use Yesly\HttpClient\CurlClient;
 use Yesly\HttpClient\HttpClientInterface;
 
 /**
- * Client for the Yesly API. The resources (`$appointments`, `$slots`, …) are
+ * Client for the Yesly API. The resources (`$conversations`, `$contacts`, …) are
  * generated from the OpenAPI specification.
  */
 class Client

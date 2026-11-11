@@ -12,35 +12,54 @@ $yesly = new Yesly\Client();
 if ($yesly->mode() !== 'test') {
     throw new RuntimeException('Use a ysk_test_ key.');
 }
-$tomorrow = (new DateTimeImmutable('tomorrow'))->format('Y-m-d');
 $externalId = 'SDK-PHP-' . (int) (microtime(true) * 1000);
 $step = static fn (string $name, mixed $value = '') => print("ok  {$name}: " . (is_bool($value) ? var_export($value, true) : $value) . "\n");
 
 $step('balance->retrieve', $yesly->balance->retrieve()['object']);
-$types = $yesly->appointmentTypes->list();
-$step('appointmentTypes->list', implode(',', array_column($types->data, 'id')));
-$step('locations->list', count($yesly->locations->list()->data));
+$agents = $yesly->agents->list();
+$step('agents->list', implode(',', array_column($agents->data, 'id')));
+$step('senders->list', count($yesly->senders->list()->data));
+$step('templates->list', count($yesly->templates->list()->data));
 
-$apt = $yesly->appointments->create([
-    'external_id' => $externalId,
-    'type' => $types->data[0]['id'],
-    'customer' => ['name' => 'SDK smoke', 'phone' => '+34600000001'],
-    'slot' => ['start' => "{$tomorrow}T10:00:00+01:00", 'end' => "{$tomorrow}T12:00:00+01:00"],
-    'metadata' => ['source' => 'sdk-smoke'],
-]);
-$step('appointments->create', "{$apt['id']} {$apt['status']}");
-$step('appointments->retrieve', $yesly->appointments->retrieve($apt['id'])['external_id']);
+$contact = $yesly->contacts->create(['external_id' => $externalId, 'name' => 'SDK smoke', 'phone' => '+34600000001', 'metadata' => ['source' => 'sdk-smoke']]);
+$step('contacts->create', $contact['id']);
+$step('contacts->create again (same contact)', $yesly->contacts->create(['external_id' => $externalId, 'phone' => '+34600000001'])['id'] === $contact['id']);
+$step('contacts->retrieve', $yesly->contacts->retrieve($contact['id'])['external_id']);
+$step('contacts->update', $yesly->contacts->update($contact['id'], ['metadata' => ['note' => 'updated']])['metadata']['note']);
 $n = 0;
-foreach ($yesly->appointments->list(['metadata' => ['source' => 'sdk-smoke'], 'limit' => 1]) as $_) {
+foreach ($yesly->contacts->list(['limit' => 1]) as $_) {
     if (++$n >= 3) {
         break;
     }
 }
-$step('appointments->list (auto-paging, limit 1)', $n);
-$step('appointments->update', $yesly->appointments->update($apt['id'], ['metadata' => ['note' => 'updated']])['metadata']['note']);
-$step('appointments->cancel', $yesly->appointments->cancel($apt['id'], ['reason' => 'SDK smoke test'])['status']);
+$step('contacts->list (auto-paging, limit 1)', $n);
+$step('contacts->listMemory', count($yesly->contacts->listMemory($contact['id'])->data));
 
-$we = $yesly->webhookEndpoints->create(['url' => 'https://example.com/yesly-sdk-smoke', 'enabled_events' => ['appointment.confirmed']]);
+$agent = null;
+foreach ($agents->data as $a) {
+    if ($a['status'] === 'active') {
+        $agent = $a;
+        break;
+    }
+}
+if ($agent !== null) {
+    $params = ['agent' => $agent['id'], 'contact' => $contact['id'], 'channels' => [$agent['channels'][0]]];
+    $cnv = $yesly->conversations->create($params, ['idempotency_key' => "{$externalId}-cnv"]);
+    $step('conversations->create', "{$cnv['id']} {$cnv['status']}");
+    $step('conversations->create again (replayed)', $yesly->conversations->create($params, ['idempotency_key' => "{$externalId}-cnv"])['id'] === $cnv['id']);
+    $step('conversations->retrieve', $yesly->conversations->retrieve($cnv['id'])['status']);
+    $step('conversations->list', count($yesly->conversations->list(['contact' => $contact['id']])->data));
+    $step('conversations->listMessages', count($yesly->conversations->listMessages($cnv['id'])->data));
+    $step('messages->list', count($yesly->messages->list(['conversation' => $cnv['id']])->data));
+} else {
+    $step('conversations->*', 'skipped: the account has no active agent');
+}
+
+$optOut = $yesly->optOuts->create(['channel' => 'sms', 'address' => '+34600000099']);
+$step('optOuts->create', $optOut['id']);
+$step('optOuts->delete', $yesly->optOuts->delete($optOut['id'])['deleted']);
+
+$we = $yesly->webhookEndpoints->create(['url' => 'https://example.com/yesly-sdk-smoke', 'enabled_events' => ['conversation.ended']]);
 $step('webhookEndpoints->create', $we['id']);
 $step('webhookEndpoints->rollSecret', $yesly->webhookEndpoints->rollSecret($we['id'])['id']);
 $step('webhookEndpoints->delete', $yesly->webhookEndpoints->delete($we['id'])['deleted']);
@@ -51,10 +70,11 @@ if ($events->data !== []) {
     $step('events->retrieve', $yesly->events->retrieve($events->data[0]['id'])['id']);
 }
 $step('balance->listTransactions', count($yesly->balance->listTransactions(['limit' => 5])->data));
-$step('analytics->retrieveSummary', $yesly->analytics->retrieveSummary(['range' => '7d'])['appointments']);
+$step('analytics->summary', $yesly->analytics->summary(['range' => '7d'])['conversations']);
 
 try {
-    $yesly->appointments->create(['external_id' => "{$externalId}-bad", 'customer' => ['name' => 'x', 'phone' => '612'], 'slot' => ['start' => "{$tomorrow}T10:00:00+01:00"]]);
+    $yesly->contacts->create(['external_id' => "{$externalId}-bad", 'phone' => '612']);
 } catch (Yesly\Exception\InvalidRequestException $e) {
     $step('validation error', get_class($e) . " {$e->status} {$e->errorCode} {$e->param} " . ($e->requestId ? 'with request id' : 'NO REQUEST ID'));
 }
+$step('contacts->delete', $yesly->contacts->delete($contact['id'])['deleted']);

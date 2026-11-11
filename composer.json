@@ -4,7 +4,7 @@
     "type": "library",
     "license": "MIT",
     "homepage": "https://yesly.dev",
-    "keywords": ["yesly", "appointments", "whatsapp", "sms", "api"],
+    "keywords": ["yesly", "agents", "conversations", "whatsapp", "sms", "api"],
     "require": {
         "php": ">=8.1",
         "ext-curl": "*",

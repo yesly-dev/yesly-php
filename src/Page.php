@@ -41,9 +41,13 @@ final class Page implements \IteratorAggregate
         if (!$this->hasNextPage()) {
             throw new \LogicException('There is no next page.');
         }
-        $last = $this->data[\count($this->data) - 1];
+        // Lists that come whole, in one page (a conversation's turns), have items without an id.
+        $id = $this->data[\count($this->data) - 1]['id'] ?? null;
+        if (!\is_string($id)) {
+            throw new \LogicException('There is no next page.');
+        }
 
-        return ($this->fetchAfter)((string) $last['id']);
+        return ($this->fetchAfter)($id);
     }
 
     public function getIterator(): \Generator
