@@ -13,11 +13,11 @@ final class ConversationsService extends AbstractService
     /**
      * List conversations.
      *
-     * Newest first, by creation.
+     * Newest first by creation, or oldest first with `order=asc`.
      *
      * `GET /conversations`
      *
-     * @param array{agent?: string, contact?: string, status?: string, direction?: string, channel?: string, outcome?: string, from?: string, to?: string, limit?: int, starting_after?: string} $params
+     * @param array{agent?: string, contact?: string, status?: string, direction?: string, channel?: string, outcome?: string, from?: string, to?: string, order?: string, limit?: int, starting_after?: string} $params
      * @param array{timeout?: float, max_retries?: int} $opts
      * @return Page pages of Conversation
      */

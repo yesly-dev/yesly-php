@@ -13,6 +13,7 @@ trait Resources
     public \Yesly\Service\SendersService $senders;
     public \Yesly\Service\ContactsService $contacts;
     public \Yesly\Service\ConversationsService $conversations;
+    public \Yesly\Service\CampaignsService $campaigns;
     public \Yesly\Service\MessagesService $messages;
     public \Yesly\Service\TemplatesService $templates;
     public \Yesly\Service\OptOutsService $optOuts;
@@ -27,6 +28,7 @@ trait Resources
         $this->senders = new \Yesly\Service\SendersService($this);
         $this->contacts = new \Yesly\Service\ContactsService($this);
         $this->conversations = new \Yesly\Service\ConversationsService($this);
+        $this->campaigns = new \Yesly\Service\CampaignsService($this);
         $this->messages = new \Yesly\Service\MessagesService($this);
         $this->templates = new \Yesly\Service\TemplatesService($this);
         $this->optOuts = new \Yesly\Service\OptOutsService($this);
